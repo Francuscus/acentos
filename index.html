@@ -114,7 +114,7 @@ audio { width: 100%; margin: 6px 0; border-radius: 8px; height: 36px; }
 
   <div class="card" id="micCard">
     <div class="section-title"><span class="step-badge">🎤</span>Enable Your Microphone</div>
-    <p class="note">This app records your spoken answers. Live browser transcription is disabled for reliability in class; transcripts can be handled later.</p>
+    <p class="note">This app records your spoken answers and will try to auto-transcribe them in your browser (free speech-to-text). If unavailable, audio is still saved.</p>
     <button class="btn btn-purple" id="micBtn" onclick="requestMic()">🎤 Enable Microphone</button>
     <div id="micStatus"></div>
   </div>
@@ -165,28 +165,28 @@ audio { width: 100%; margin: 6px 0; border-radius: 8px; height: 36px; }
       <div class="q-label">Question 1 <span class="q-done-badge">✓ Recorded</span></div>
       <button class="btn btn-red" id="recBtn1" onclick="startQuestionRecording(1)">⏺ Record Q1</button>
       <button class="btn btn-grey" id="stopBtn1" onclick="stopQuestionRecording(1)" disabled>⏹ Stop</button>
-      <div class="transcript" id="t1">Transcript not captured live. Audio will be reviewed later.</div>
+      <div class="transcript" id="t1">Automatic transcript will appear here after recording.</div>
       <audio id="a1" controls class="hidden"></audio>
     </div>
     <div class="q-block" id="qblock2">
       <div class="q-label">Question 2 <span class="q-done-badge">✓ Recorded</span></div>
       <button class="btn btn-red" id="recBtn2" onclick="startQuestionRecording(2)">⏺ Record Q2</button>
       <button class="btn btn-grey" id="stopBtn2" onclick="stopQuestionRecording(2)" disabled>⏹ Stop</button>
-      <div class="transcript" id="t2">Transcript not captured live. Audio will be reviewed later.</div>
+      <div class="transcript" id="t2">Automatic transcript will appear here after recording.</div>
       <audio id="a2" controls class="hidden"></audio>
     </div>
     <div class="q-block" id="qblock3">
       <div class="q-label">Question 3 <span class="q-done-badge">✓ Recorded</span></div>
       <button class="btn btn-red" id="recBtn3" onclick="startQuestionRecording(3)">⏺ Record Q3</button>
       <button class="btn btn-grey" id="stopBtn3" onclick="stopQuestionRecording(3)" disabled>⏹ Stop</button>
-      <div class="transcript" id="t3">Transcript not captured live. Audio will be reviewed later.</div>
+      <div class="transcript" id="t3">Automatic transcript will appear here after recording.</div>
       <audio id="a3" controls class="hidden"></audio>
     </div>
     <div class="q-block" id="qblock4">
       <div class="q-label">Question 4 <span class="q-done-badge">✓ Recorded</span></div>
       <button class="btn btn-red" id="recBtn4" onclick="startQuestionRecording(4)">⏺ Record Q4</button>
       <button class="btn btn-grey" id="stopBtn4" onclick="stopQuestionRecording(4)" disabled>⏹ Stop</button>
-      <div class="transcript" id="t4">Transcript not captured live. Audio will be reviewed later.</div>
+      <div class="transcript" id="t4">Automatic transcript will appear here after recording.</div>
       <audio id="a4" controls class="hidden"></audio>
     </div>
   </div>
@@ -202,7 +202,7 @@ audio { width: 100%; margin: 6px 0; border-radius: 8px; height: 36px; }
       <button class="btn btn-grey" id="freeStopBtn" onclick="stopFreeSpeech()" disabled>⏹ Stop Early</button>
       <button class="btn btn-gold" id="freeResetBtn" onclick="resetFreeSpeech()">↺ Reset</button>
     </div>
-    <div class="transcript" id="tFree">Transcript not captured live. Audio will be reviewed later.</div>
+    <div class="transcript" id="tFree">Automatic transcript will appear here after recording.</div>
     <audio id="aFree" controls class="hidden"></audio>
   </div>
 
@@ -221,7 +221,7 @@ audio { width: 100%; margin: 6px 0; border-radius: 8px; height: 36px; }
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySzQHzJh8WUkwTSmPyC59s6sxNe2KeVUA5DhHyt-oVouvO_Ay-0T8z94vbxOZ-qV1p/exec';
 
-const DEFAULT_TRANSCRIPT = 'Transcription handled later by instructor/backend.';
+const DEFAULT_TRANSCRIPT = 'Automatic transcription unavailable for this browser.';
 
 const S = {
   micGranted: false,
@@ -239,6 +239,8 @@ const S = {
   submitInFlight: false,
   submitted: false
 };
+
+const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function show(id) { document.getElementById(id)?.classList.remove('hidden'); }
 function hide(id) { document.getElementById(id)?.classList.add('hidden'); }
@@ -414,12 +416,13 @@ async function startQuestionRecording(n) {
     const mimeType = getSupportedMimeType();
     const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
 
-    S.recs[n] = { recorder, stream };
+    S.recs[n] = { recorder, stream, recognition: null, transcriptText: '', transcriptFinal: false };
     recorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) S.chunks[n].push(e.data);
     };
 
     recorder.onstop = async () => {
+      stopSpeechRecognition(n);
       await finalizeRecording(n, `a${n}`, `qblock${n}`, `t${n}`);
       setQuestionButtonStates(n, false);
       resetOtherRecordButtons(false);
@@ -427,6 +430,7 @@ async function startQuestionRecording(n) {
     };
 
     recorder.start(250);
+    startSpeechRecognition(n, `t${n}`);
     setQuestionButtonStates(n, true);
     resetOtherRecordButtons(true);
 
@@ -476,8 +480,16 @@ async function finalizeRecording(key, audioId, blockId, transcriptId) {
 
   const transcriptEl = document.getElementById(transcriptId);
   transcriptEl.classList.remove('active');
-  transcriptEl.textContent = '✅ Audio recorded. Transcription will be completed later.';
-  S.transcripts[key] = DEFAULT_TRANSCRIPT;
+  const transcriptData = S.recs[key] || {};
+  const transcriptText = (transcriptData.transcriptText || '').trim();
+
+  if (transcriptText) {
+    transcriptEl.textContent = `✅ ${transcriptText}`;
+    S.transcripts[key] = transcriptText;
+  } else {
+    transcriptEl.textContent = '✅ Audio recorded. Automatic transcript unavailable for this attempt.';
+    S.transcripts[key] = DEFAULT_TRANSCRIPT;
+  }
 
   if (blockId) {
     document.getElementById(blockId).classList.add('done');
@@ -495,12 +507,13 @@ async function startFreeSpeech() {
     const mimeType = getSupportedMimeType();
     const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
 
-    S.recs.free = { recorder, stream };
+    S.recs.free = { recorder, stream, recognition: null, transcriptText: '', transcriptFinal: false };
     recorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) S.chunks.free.push(e.data);
     };
 
     recorder.onstop = async () => {
+      stopSpeechRecognition('free');
       await finalizeRecording('free', 'aFree', null, 'tFree');
       endFreeTimer();
       S.activeRecording = null;
@@ -509,6 +522,7 @@ async function startFreeSpeech() {
     };
 
     recorder.start(250);
+    startSpeechRecognition('free', 'tFree');
     updateFreeButtons(true);
     resetOtherRecordButtons(true);
 
@@ -591,9 +605,67 @@ function resetFreeSpeech() {
 
   const transcriptEl = document.getElementById('tFree');
   transcriptEl.classList.remove('active');
-  transcriptEl.textContent = 'Transcript not captured live. Audio will be reviewed later.';
+  transcriptEl.textContent = 'Automatic transcript will appear here after recording.';
 
   updateFreeButtons(false);
+}
+
+function startSpeechRecognition(key, transcriptId) {
+  if (!SpeechRecognitionCtor) return;
+
+  const recognition = new SpeechRecognitionCtor();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'es-ES';
+
+  const target = S.recs[key];
+  if (!target) return;
+  target.recognition = recognition;
+
+  recognition.onresult = (event) => {
+    const recState = S.recs[key];
+    if (!recState) return;
+
+    let combined = '';
+    for (let i = 0; i < event.results.length; i++) {
+      combined += `${event.results[i][0].transcript} `;
+    }
+
+    recState.transcriptText = combined.trim();
+    recState.transcriptFinal = event.results[event.results.length - 1]?.isFinal || false;
+
+    const transcriptEl = document.getElementById(transcriptId);
+    if (!transcriptEl) return;
+    transcriptEl.textContent = recState.transcriptText
+      ? `📝 ${recState.transcriptText}`
+      : '🎙️ Listening for speech...';
+  };
+
+  recognition.onerror = () => {
+    const recState = S.recs[key];
+    if (!recState || recState.transcriptText) return;
+    const transcriptEl = document.getElementById(transcriptId);
+    if (transcriptEl) {
+      transcriptEl.textContent = 'Recording in progress... (speech-to-text unavailable in this browser)';
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (err) {
+    // Ignore recognition start failures; audio recording should still proceed.
+  }
+}
+
+function stopSpeechRecognition(key) {
+  const active = S.recs[key];
+  if (!active?.recognition) return;
+
+  try {
+    active.recognition.stop();
+  } catch (err) {
+    // ignore
+  }
 }
 
 function updateTimerDisplay(secondsLeft) {
@@ -686,6 +758,11 @@ async function submitAll() {
 
 window.addEventListener('load', () => {
   updateTimerDisplay(S.freeSecondsLeft);
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`t${i}`).textContent = 'Automatic transcript will appear here after recording.';
+  }
+  document.getElementById('tFree').textContent = 'Automatic transcript will appear here after recording.';
 
   const params = new URLSearchParams(window.location.search);
   const studentParam = params.get('student');
