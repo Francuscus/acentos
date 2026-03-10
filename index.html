@@ -1,496 +1,699 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spanish IPA Transcriber</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Georgia', serif;
-      line-height: 1.6;
-      color: #2c3e50;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #ff6b6b, #feca57);
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-    .header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    .subtitle { font-size: 1.1rem; opacity: 0.9; }
-    .main-content { padding: 40px; }
-    .input-section { margin-bottom: 30px; }
-    .input-section h2 { color: #2c3e50; margin-bottom: 15px; font-size: 1.5rem; }
-    textarea {
-      width: 100%;
-      height: 140px;
-      padding: 15px;
-      border: 2px solid #e0e6ed;
-      border-radius: 10px;
-      font-size: 16px;
-      font-family: 'Georgia', serif;
-      resize: vertical;
-      transition: all 0.3s ease;
-    }
-    textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-    .controls { margin: 20px 0; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-    .transcribe-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-    .transcribe-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
-    .output-section {
-      background: #f8f9fa;
-      border-radius: 15px;
-      padding: 25px;
-      margin-top: 30px;
-    }
-    .output-section h2 { color: #2c3e50; margin-bottom: 20px; }
-    .transcription-result {
-      background: white;
-      border: 2px solid #e0e6ed;
-      border-radius: 10px;
-      padding: 20px;
-      font-family: 'Courier New', monospace;
-      font-size: 18px;
-      line-height: 1.8;
-      color: #2c3e50;
-      min-height: 100px;
-      white-space: pre-wrap;
-    }
-    .feature-toggle {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .feature-toggle h3 { margin-bottom: 15px; color: #2c3e50; }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      border-radius: 5px;
-      transition: background-color 0.2s ease;
-    }
-    .feature-item:hover { background-color: #f0f0f0; }
-    .feature-item input[type="checkbox"] { margin: 0; }
-    .feature-item label { font-size: 14px; color: #555; cursor: pointer; }
-    .dialect-selector { margin-bottom: 20px; }
-    .dialect-selector select {
-      padding: 10px;
-      border: 2px solid #e0e6ed;
-      border-radius: 8px;
-      font-size: 16px;
-      background: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FS-101 Listening Station — Monmouth University</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --deep: #0f0a1e;
+  --purple: #4A235A;
+  --violet: #7D3C98;
+  --lavender:#D7BDE2;
+  --green: #1E6B2E;
+  --greenlt: #EBF7ED;
+  --red: #922B21;
+  --redlt: #FDF0F0;
+  --gold: #B7950B;
+  --goldlt: #FEF9E7;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.hidden { display: none !important; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--deep);
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+  position: relative;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 20% 20%, rgba(74,35,90,0.4) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 80%, rgba(30,107,46,0.2) 0%, transparent 50%),
+              radial-gradient(ellipse at 60% 30%, rgba(125,60,152,0.15) 0%, transparent 40%);
+  animation: bgshift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes bgshift {
+  0% { transform: translate(0,0) rotate(0deg); }
+  100% { transform: translate(2%,2%) rotate(1deg); }
+}
+.wrap { max-width: 660px; margin: 0 auto; position: relative; z-index: 1; }
+.header {
+  text-align: center; margin-bottom: 28px; padding: 32px 24px 28px;
+  background: linear-gradient(135deg, rgba(74,35,90,0.9) 0%, rgba(30,15,50,0.95) 100%);
+  border-radius: 20px; border: 1px solid rgba(215,189,226,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.header .icon { font-size: 40px; margin-bottom: 10px; display: block; }
+.header h1 { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 26px; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
+.header p { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 15px; color: var(--lavender); opacity: 0.85; }
+.card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset; border: 1px solid var(--border); transition: transform 0.2s; }
+.card.hidden { display: none; }
+.section-title { font-weight: 700; font-size: 11px; color: var(--violet); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.step-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: var(--purple); color: white; border-radius: 50%; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+input[type=text], select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); margin-bottom: 10px; transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa; }
+input[type=text]:focus, select:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(125,60,152,0.12); background: #fff; }
+.btn { width: 100%; padding: 12px 16px; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 8px; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.2px; }
+.btn-purple { background: linear-gradient(135deg, var(--purple) 0%, var(--violet) 100%); color: white; box-shadow: 0 3px 12px rgba(74,35,90,0.3); }
+.btn-purple:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(74,35,90,0.4); }
+.btn-red { background: linear-gradient(135deg, #922B21 0%, #C0392B 100%); color: white; box-shadow: 0 3px 12px rgba(146,43,33,0.3); }
+.btn-red:hover { transform: translateY(-1px); }
+.btn-red.recording { background: linear-gradient(135deg, #C0392B 0%, #E74C3C 100%); animation: pulse 1.2s ease-in-out infinite; }
+.btn-grey { background: #6b7280; color: white; }
+.btn-grey:hover { background: #4b5563; }
+.btn-gold { background: linear-gradient(135deg, #B7950B 0%, #D4AC0D 100%); color: white; box-shadow: 0 3px 12px rgba(183,149,11,0.3); }
+.btn-gold:hover { transform: translateY(-1px); }
+.btn-green { background: linear-gradient(135deg, var(--green) 0%, #239B56 100%); color: white; box-shadow: 0 3px 12px rgba(30,107,46,0.3); font-size: 15px; padding: 14px; }
+.btn-green:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(30,107,46,0.4); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.85; transform: scale(0.99); } }
+.drive-player { width: 100%; height: 80px; border: none; border-radius: 10px; margin: 8px 0; background: #f3f4f6; }
+.filename { font-size: 11px; color: var(--violet); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.q-block { border-left: 3px solid var(--lavender); padding-left: 14px; margin-bottom: 20px; transition: border-color 0.2s; }
+.q-block.done { border-color: var(--green); }
+.q-label { font-weight: 600; font-size: 13px; color: var(--purple); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.q-done-badge { display: none; font-size: 10px; background: var(--greenlt); color: var(--green); padding: 2px 7px; border-radius: 10px; font-weight: 700; }
+.q-block.done .q-done-badge { display: inline; }
+.transcript { background: #f8f5fc; border: 1.5px solid var(--lavender); border-radius: 10px; padding: 10px 12px; min-height: 54px; font-family: 'Crimson Pro', serif; font-size: 15px; color: var(--text); margin: 8px 0; line-height: 1.6; transition: border-color 0.2s; }
+.transcript.active { border-color: var(--violet); background: #f3ebfa; }
+audio { width: 100%; margin: 6px 0; border-radius: 8px; height: 36px; }
+.timer-wrap { display: flex; align-items: center; justify-content: center; margin: 14px 0; }
+.timer { font-size: 56px; font-weight: 800; color: var(--gold); background: var(--goldlt); border: 2px solid #F0B429; border-radius: 14px; padding: 12px 28px; font-variant-numeric: tabular-nums; letter-spacing: 2px; transition: all 0.3s; min-width: 180px; text-align: center; }
+.timer.urgent { color: var(--red); border-color: var(--red); background: var(--redlt); animation: urgentpulse 0.8s ease-in-out infinite; }
+@keyframes urgentpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+.timer-btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.timer-btn-row .btn { margin-bottom: 0; }
+.note { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 14px; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
+.error-msg { font-size: 12px; color: var(--red); background: var(--redlt); border-radius: 8px; padding: 10px 12px; margin-top: 8px; line-height: 1.5; }
+.info-msg { font-size: 12px; color: #1f2937; background: #eef2ff; border-radius: 8px; padding: 10px 12px; margin-top: 8px; line-height: 1.5; }
+.success-banner { background: linear-gradient(135deg, #1E6B2E 0%, #239B56 100%); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 18px; font-weight: 700; display: none; margin-top: 12px; box-shadow: 0 6px 24px rgba(30,107,46,0.35); }
+.success-banner .sub { font-size: 13px; font-weight: 400; opacity: 0.88; margin-top: 6px; font-family: 'Crimson Pro', serif; font-style: italic; }
+.mic-card-ready { background: var(--greenlt) !important; border-color: var(--green) !important; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Spanish IPA Transcriber</h1>
-      <p class="subtitle">Dominican, Mexican, Rioplatense, and Cádiz varieties with syllabification</p>
+<div class="wrap">
+  <div class="header">
+    <span class="icon">🎧</span>
+    <h1>FS-101 Listening Station</h1>
+    <p>Monmouth University · Prof. Cipriani</p>
+  </div>
+
+  <div class="card" id="micCard">
+    <div class="section-title"><span class="step-badge">🎤</span>Enable Your Microphone</div>
+    <p class="note">This app records your spoken answers. Live browser transcription is disabled for reliability in class; transcripts can be handled later.</p>
+    <button class="btn btn-purple" id="micBtn" onclick="requestMic()">🎤 Enable Microphone</button>
+    <div id="micStatus"></div>
+  </div>
+
+  <div class="card" id="step1">
+    <div class="section-title"><span class="step-badge">1</span>Who are you?</div>
+    <input type="text" id="studentName" placeholder="Your full name" autocomplete="name" />
+    <select id="dayNum">
+      <option value="">— Select today's day —</option>
+      <option value="1">Day 1</option><option value="2">Day 2</option>
+      <option value="3">Day 3</option><option value="4">Day 4</option>
+      <option value="5">Day 5</option><option value="6">Day 6</option>
+      <option value="7">Day 7</option><option value="8">Day 8</option>
+      <option value="9">Day 9</option><option value="10">Day 10</option>
+      <option value="11">Day 11</option><option value="12">Day 12</option>
+      <option value="13">Day 13</option><option value="14">Day 14</option>
+      <option value="15">Day 15</option><option value="16">Day 16</option>
+      <option value="17">Day 17</option><option value="18">Day 18</option>
+      <option value="19">Day 19</option><option value="20">Day 20</option>
+      <option value="21">Day 21</option><option value="22">Day 22</option>
+      <option value="23">Day 23</option><option value="24">Day 24</option>
+      <option value="25">Day 25</option><option value="26">Day 26</option>
+      <option value="27">Day 27</option>
+    </select>
+    <button class="btn btn-purple" id="loadBtn" onclick="loadDay()">▶ Load Today's Activity</button>
+    <div id="loadError" class="error-msg hidden"></div>
+    <div id="loadInfo" class="info-msg hidden"></div>
+  </div>
+
+  <div class="card hidden" id="step2">
+    <div class="section-title"><span class="step-badge">2</span>Listen to the Dialog</div>
+    <p class="note">Listen as many times as you need before moving on.</p>
+    <div class="filename" id="dialogName"></div>
+    <iframe id="dialogPlayer" class="drive-player" allow="autoplay"></iframe>
+  </div>
+
+  <div class="card hidden" id="step3">
+    <div class="section-title"><span class="step-badge">3</span>Listen to the Questions</div>
+    <p class="note">Listen carefully, then record your answers below.</p>
+    <div class="filename" id="questionsName"></div>
+    <iframe id="questionsPlayer" class="drive-player" allow="autoplay"></iframe>
+  </div>
+
+  <div class="card hidden" id="step4">
+    <div class="section-title"><span class="step-badge">4</span>Record Your Answers</div>
+    <p class="note">Press Record for each question, speak clearly, then press Stop. You can re-record any question.</p>
+    <div class="q-block" id="qblock1">
+      <div class="q-label">Question 1 <span class="q-done-badge">✓ Recorded</span></div>
+      <button class="btn btn-red" id="recBtn1" onclick="startQuestionRecording(1)">⏺ Record Q1</button>
+      <button class="btn btn-grey" id="stopBtn1" onclick="stopQuestionRecording(1)" disabled>⏹ Stop</button>
+      <div class="transcript" id="t1">Transcript not captured live. Audio will be reviewed later.</div>
+      <audio id="a1" controls class="hidden"></audio>
     </div>
-
-    <div class="main-content">
-      <div class="input-section">
-        <h2>Enter Spanish Text</h2>
-        <textarea id="inputText" placeholder="Enter Spanish text here...">hola chicos</textarea>
-      </div>
-
-      <div class="dialect-selector">
-        <label for="dialectSelect">Choose dialect: </label>
-        <select id="dialectSelect">
-          <option value="dominican">Dominican (Santo Domingo)</option>
-          <option value="mexican">Mexican (Mexico City)</option>
-          <option value="rioplatense">Rioplatense (Buenos Aires/Montevideo)</option>
-          <option value="cadiz">Cádiz (Andalusian)</option>
-        </select>
-      </div>
-
-      <div class="feature-toggle">
-        <h3>Features</h3>
-        <div class="feature-grid">
-          <div class="feature-item">
-            <input type="checkbox" id="liquidSubCadiz" checked>
-            <label for="liquidSubCadiz">Liquid substitution r→l̪ (Cádiz)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="nVelarization" checked>
-            <label for="nVelarization">N-velarization n→ŋ (Dominican)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="ceceo" checked>
-            <label for="ceceo">Ceceo distinction θ≠s (Cádiz)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="finalRDeletionCadiz" checked>
-            <label for="finalRDeletionCadiz">Final r-deletion (Cádiz casual)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="finalSDeletion" checked>
-            <label for="finalSDeletion">Final s-deletion/aspiration (Cádiz)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="liquidSub" checked>
-            <label for="liquidSub">Liquid substitution r→l̪ (Dominican)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="sDelete" checked>
-            <label for="sDelete">S-deletion (Dominican)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="assibilatedR" checked>
-            <label for="assibilatedR">Assibilated r→ʂ (Mexican)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="sheismo" checked>
-            <label for="sheismo">Sheísmo ll/y→ʃ (Rioplatense)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="sAspiration" checked>
-            <label for="sAspiration">S-aspiration s→h (Rioplatense)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="finalRDeletion" checked>
-            <label for="finalRDeletion">Final tap deletion (Rioplatense casual)</label>
-          </div>
-          <div class="feature-item">
-            <input type="checkbox" id="showSyllables" checked>
-            <label for="showSyllables">Show syllable boundaries</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="controls">
-        <button class="transcribe-btn" onclick="transcribe()">Transcribe</button>
-      </div>
-
-      <div class="output-section" id="outputSection" style="display:none;">
-        <h2>IPA Transcription</h2>
-        <div class="transcription-result" id="transcriptionResult"></div>
-      </div>
+    <div class="q-block" id="qblock2">
+      <div class="q-label">Question 2 <span class="q-done-badge">✓ Recorded</span></div>
+      <button class="btn btn-red" id="recBtn2" onclick="startQuestionRecording(2)">⏺ Record Q2</button>
+      <button class="btn btn-grey" id="stopBtn2" onclick="stopQuestionRecording(2)" disabled>⏹ Stop</button>
+      <div class="transcript" id="t2">Transcript not captured live. Audio will be reviewed later.</div>
+      <audio id="a2" controls class="hidden"></audio>
+    </div>
+    <div class="q-block" id="qblock3">
+      <div class="q-label">Question 3 <span class="q-done-badge">✓ Recorded</span></div>
+      <button class="btn btn-red" id="recBtn3" onclick="startQuestionRecording(3)">⏺ Record Q3</button>
+      <button class="btn btn-grey" id="stopBtn3" onclick="stopQuestionRecording(3)" disabled>⏹ Stop</button>
+      <div class="transcript" id="t3">Transcript not captured live. Audio will be reviewed later.</div>
+      <audio id="a3" controls class="hidden"></audio>
+    </div>
+    <div class="q-block" id="qblock4">
+      <div class="q-label">Question 4 <span class="q-done-badge">✓ Recorded</span></div>
+      <button class="btn btn-red" id="recBtn4" onclick="startQuestionRecording(4)">⏺ Record Q4</button>
+      <button class="btn btn-grey" id="stopBtn4" onclick="stopQuestionRecording(4)" disabled>⏹ Stop</button>
+      <div class="transcript" id="t4">Transcript not captured live. Audio will be reviewed later.</div>
+      <audio id="a4" controls class="hidden"></audio>
     </div>
   </div>
 
-  <script>
-    const vowels = 'aeiou';
-    const weakVowels = 'iu';
-    const consonants = 'bβdðgɣptkfθsxmnɲlrɾʝtʃɲjʃʒRθjwŋ';
-    const validClusters = ['bl','br','kl','kr','dl','dr','fl','fr','gl','gr','pl','pr','tl','tr'];
+  <div class="card hidden" id="step5">
+    <div class="section-title"><span class="step-badge">5</span>Habla Libremente — 4 Minutes</div>
+    <p class="note">Speak freely about the dialog. Don't stop. Don't correct yourself. Just talk! Timer stops automatically at zero.</p>
+    <div class="timer-wrap">
+      <div class="timer" id="freeTimer">4:00</div>
+    </div>
+    <div class="timer-btn-row">
+      <button class="btn btn-red" id="freeRecBtn" onclick="startFreeSpeech()">⏺ Start</button>
+      <button class="btn btn-grey" id="freeStopBtn" onclick="stopFreeSpeech()" disabled>⏹ Stop Early</button>
+      <button class="btn btn-gold" id="freeResetBtn" onclick="resetFreeSpeech()">↺ Reset</button>
+    </div>
+    <div class="transcript" id="tFree">Transcript not captured live. Audio will be reviewed later.</div>
+    <audio id="aFree" controls class="hidden"></audio>
+  </div>
 
-    function orthographyToPhonemes(text, dialect) {
-      let result = (text || '').toLowerCase();
-      result = result.replace(/ch/g, 'tʃ');
-      result = result.replace(/h/g, '');
-      result = result.replace(/ll/g, 'ʝ');
-      result = result.replace(/rr/g, 'r');
-      result = result.replace(/qu/g, 'k');
+  <div class="card hidden" id="step6">
+    <div class="section-title"><span class="step-badge">6</span>Submit Your Work</div>
+    <p class="note">All done? Press Submit to send your answers to Prof. Cipriani.</p>
+    <button class="btn btn-green" id="submitBtn" onclick="submitAll()">✓ Submit All Answers</button>
+    <div id="submitStatus"></div>
+    <div class="success-banner" id="successBanner">
+      ✓ ¡Excelente trabajo!
+      <div class="sub">Your professor will review and respond soon.</div>
+    </div>
+  </div>
+</div>
 
-      if (dialect === 'cadiz') {
-        result = result.replace(/c([ei])/g, 'θ$1');
-        result = result.replace(/z/g, 'θ');
-      } else {
-        result = result.replace(/c([ei])/g, 's$1');
-        result = result.replace(/z/g, 's');
-      }
-      result = result.replace(/c/g, 'k');
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySzQHzJh8WUkwTSmPyC59s6sxNe2KeVUA5DhHyt-oVouvO_Ay-0T8z94vbxOZ-qV1p/exec';
 
-      result = result.replace(/g([ei])/g, 'x$1');
-      result = result.replace(/gu([ei])/g, 'g$1');
-      result = result.replace(/v/g, 'b');
-      result = result.replace(/y(?=[aeiou])/g, 'ʝ');
-      result = result.replace(/y$/g, 'i');
-      result = result.replace(/([aeiou])y/g, '$1i');
-      result = result.replace(/^y/g, 'ʝ');
-      result = result.replace(/j/g, 'x');
-      result = result.replace(/ñ/g, 'ɲ');
-      result = result.replace(/r$/g, 'R');
-      result = result.replace(/r/g, 'ɾ');
+const DEFAULT_TRANSCRIPT = 'Transcription handled later by instructor/backend.';
 
-      return result;
+const S = {
+  micGranted: false,
+  dayLoaded: false,
+  activeRecording: null,
+  recs: {},
+  chunks: {},
+  b64: {},
+  blobs: {},
+  audioUrls: {},
+  transcripts: {1: DEFAULT_TRANSCRIPT, 2: DEFAULT_TRANSCRIPT, 3: DEFAULT_TRANSCRIPT, 4: DEFAULT_TRANSCRIPT, free: DEFAULT_TRANSCRIPT},
+  freeSecondsLeft: 240,
+  freeEndTs: null,
+  freeTickInterval: null,
+  submitInFlight: false,
+  submitted: false
+};
+
+function show(id) { document.getElementById(id)?.classList.remove('hidden'); }
+function hide(id) { document.getElementById(id)?.classList.add('hidden'); }
+
+function setHtml(id, html) { document.getElementById(id).innerHTML = html; }
+
+function showError(id, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove('hidden');
+}
+
+function hideMessage(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = '';
+  el.classList.add('hidden');
+}
+
+function supportsRecording() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+}
+
+async function requestMic() {
+  if (!supportsRecording()) {
+    showError('micStatus', 'This browser does not support microphone recording. Please use current Chrome or Edge.');
+    return;
+  }
+
+  setHtml('micStatus', '<span style="color:#7D3C98">Requesting access...</span>');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(track => track.stop());
+    S.micGranted = true;
+
+    document.getElementById('micCard').classList.add('mic-card-ready');
+    document.getElementById('micBtn').disabled = true;
+    document.getElementById('micBtn').textContent = '✓ Microphone Ready';
+    setHtml('micStatus', '<span style="color:#1E6B2E;font-weight:600">Microphone enabled</span>');
+  } catch (err) {
+    setHtml('micStatus', '<div class="error-msg">Permission denied. Click browser lock icon → Microphone → Allow, then reload this page.</div>');
+  }
+}
+
+async function loadDay() {
+  const name = document.getElementById('studentName').value.trim();
+  const day = document.getElementById('dayNum').value;
+
+  hideMessage('loadError');
+  hideMessage('loadInfo');
+
+  if (!name || !day) {
+    showError('loadError', 'Please enter your full name and select today\'s day.');
+    return;
+  }
+
+  const loadBtn = document.getElementById('loadBtn');
+  loadBtn.disabled = true;
+  loadBtn.textContent = 'Loading...';
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=getAudio&day=${encodeURIComponent(day)}`, {
+      method: 'GET',
+      mode: 'cors',
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
     }
 
-    function syllabify(phonemes, originalWord) {
-      const strongVowels = 'aeo';
-      const vowelsSet = new Set(vowels.split(''));
-      const weakSet = new Set(weakVowels.split(''));
+    const data = await response.json();
+    const padded = day.padStart(2, '0');
 
-      const stressedWeakVowels = new Set();
-      if (originalWord && originalWord.length) {
-        let vowelIndex = 0;
-        for (let i = 0; i < originalWord.length; i++) {
-          const ch = originalWord[i];
-          const base = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-          if (ch === 'í' || ch === 'Í' || ch === 'ú' || ch === 'Ú') {
-            stressedWeakVowels.add(vowelIndex);
-          }
-          if (vowelsSet.has(base)) vowelIndex++;
-        }
-      }
+    const hasDialog = !!data.dialogUrl;
+    const hasQuestions = !!data.questionsUrl;
 
-      let processed = '';
-      let vIdx = 0;
-      for (let i = 0; i < phonemes.length; i++) {
-        const a = phonemes[i];
-        const b = phonemes[i + 1];
-        const aIsV = vowelsSet.has(a);
-        const bIsV = b ? vowelsSet.has(b) : false;
-
-        if (aIsV && bIsV) {
-          const aWeak = weakSet.has(a);
-          const bWeak = weakSet.has(b);
-          const aStressedWeak = aWeak && stressedWeakVowels.has(vIdx);
-          const bStressedWeak = bWeak && stressedWeakVowels.has(vIdx + 1);
-
-          const isDip = (!aStressedWeak && !bStressedWeak) && (
-            (aWeak && !bWeak) || (!aWeak && bWeak) || (aWeak && bWeak)
-          );
-
-          if (isDip) {
-            if (aWeak) processed += (a === 'i' ? 'j' : 'w') + b;
-            else if (bWeak) processed += a + (b === 'i' ? 'j' : 'w');
-            i++; vIdx += 2; continue;
-          } else {
-            processed += a; vIdx += 1; continue;
-          }
-        }
-
-        processed += a;
-        if (aIsV) vIdx += 1;
-      }
-
-      const syllables = [];
-      let cur = '';
-      let i = 0;
-      while (i < processed.length) {
-        const ch = processed[i];
-        cur += ch;
-
-        if (vowels.includes(ch)) {
-          let j = i + 1;
-          let cons = '';
-          while (j < processed.length && !vowels.includes(processed[j])) {
-            cons += processed[j];
-            j++;
-          }
-
-          if (cons.length === 0) {
-            syllables.push(cur); cur = ''; i++; continue;
-          }
-
-          if (cons.length === 1) {
-            syllables.push(cur); cur = cons; i = i + 2; continue;
-          }
-
-          const lastTwo = cons.slice(-2);
-          if (validClusters.includes(lastTwo)) {
-            const coda = cons.slice(0, -2);
-            cur += coda;
-            syllables.push(cur);
-            cur = lastTwo;
-            i = j;
-          } else {
-            const coda = cons.slice(0, -1);
-            cur += coda;
-            syllables.push(cur);
-            cur = cons.slice(-1);
-            i = j;
-          }
-          continue;
-        }
-        i++;
-      }
-      if (cur) syllables.push(cur);
-      return syllables;
+    if (hasDialog) {
+      document.getElementById('dialogPlayer').src = data.dialogUrl;
+      document.getElementById('dialogName').textContent = '🎵 ' + (data.dialogName || `L${padded}.mp3`);
+      show('step2');
+    } else {
+      hide('step2');
     }
 
-    function applyStress(syllables, originalWord) {
-      if (!syllables.length) return syllables;
-
-      const acute = originalWord && originalWord.match(/[áéíóúÁÉÍÓÚ]/);
-      if (acute) {
-        const map = { 'á':'a','é':'e','í':'i','ó':'o','ú':'u','Á':'a','É':'e','Í':'i','Ó':'o','Ú':'u' };
-        const v = map[acute[0]];
-        for (let i = syllables.length - 1; i >= 0; i--) {
-          if (syllables[i].includes(v)) {
-            syllables[i] = 'ˈ' + syllables[i];
-            return syllables;
-          }
-        }
-      }
-
-      const lastChar = originalWord?.[originalWord.length - 1] || '';
-      const endsInVowelNS = /[aeiouns]$/i.test(lastChar);
-
-      let idx;
-      if (syllables.length === 1) idx = 0;
-      else idx = endsInVowelNS ? syllables.length - 2 : syllables.length - 1;
-
-      if (idx >= 0) syllables[idx] = 'ˈ' + syllables[idx];
-      return syllables;
+    if (hasQuestions) {
+      document.getElementById('questionsPlayer').src = data.questionsUrl;
+      document.getElementById('questionsName').textContent = '❓ ' + (data.questionsName || `L${padded}_q.mp3`);
+      show('step3');
+    } else {
+      hide('step3');
     }
 
-    function applyRules(syllables, dialect, features) {
-      return syllables.map((syllable, index, arr) => {
-        let result = syllable;
-        const hadStress = result.includes('ˈ');
-        if (hadStress) result = result.replace('ˈ', '');
-
-        if (dialect === 'cadiz' && features.liquidSubCadiz) {
-          // Replace r/ɾ/R in syllable-final position (end of syllable OR before consonant)
-          result = result.replace(/[ɾrR]$/g, 'l̪');  // syllable-final
-          result = result.replace(/[ɾrR](?=[bβdðgɣptkfθsxmnɲʝtʃjʃʒRθjwŋ])/g, 'l̪');
-        }
-
-        if (dialect === 'cadiz' && features.finalRDeletionCadiz) {
-          const last = index === arr.length - 1;
-          if (last) result = result.replace(/[ɾrR]$/, '');
-        }
-
-        if (dialect === 'cadiz' && features.finalSDeletion) {
-          const last = index === arr.length - 1;
-          if (last) result = result.replace(/[sθ]$/, 'h');
-          result = result.replace(/[sθ](?=[bβdðgɣptkfxmnɲʝtʃjʃʒRθ])/g, 'h');
-        }
-
-        if (dialect === 'rioplatense') {
-          const last = index === arr.length - 1;
-          if (last && /R/.test(result)) result = result.replace(/R/g, 'r');
-          else result = result.replace(/R/g, 'ɾ');
-        } else {
-          result = result.replace(/R/g, 'ɾ');
-        }
-
-        if (dialect === 'rioplatense' && features.sheismo) {
-          result = result.replace(/ʝ/g, 'ʃ');
-        }
-
-        if (dialect === 'rioplatense' && features.sAspiration) {
-          const last = index === arr.length - 1;
-          if (last) result = result.replace(/s$/, 'h');
-          result = result.replace(/s(?=[bβdðgɣptkfθxmnɲʝtʃjʃʒRθ])/g, 'h');
-        }
-
-        if (dialect === 'rioplatense' && features.finalRDeletion) {
-          const last = index === arr.length - 1;
-          if (last) result = result.replace(/ɾ$/, '');
-        }
-
-        if (dialect === 'dominican' && features.nVelarization) {
-          const last = index === arr.length - 1;
-          if (last) result = result.replace(/n$/, 'ŋ');
-        }
-
-        if (dialect === 'dominican' && features.liquidSub) {
-          // Replace r/ɾ/R in syllable-final position (end of syllable OR before consonant)
-          // This includes both word-final and syllable-final in coda
-          result = result.replace(/[ɾrR]$/g, 'l̪');  // syllable-final (removed "last" check)
-          result = result.replace(/[ɾrR](?=[bβdðgɣptkfθsxmnɲʝtʃjʃʒRθjwŋl̪])/g, 'l̪');
-        }
-
-        if (dialect === 'dominican' && features.sDelete) {
-          result = result.replace(/s$/g, '');
-          result = result.replace(/s(?=[ptkg])/g, '');
-        }
-
-        if (dialect === 'mexican' && features.assibilatedR) {
-          if (!/^(ɾ|r|R)/.test(result)) {
-            result = result.replace(/ɾ/g, 'ʂ').replace(/r/g, 'ʂ').replace(/R/g, 'ʂ');
-          }
-        }
-
-        result = result.replace(/b(?![mnɲ])/g, 'β');
-        result = result.replace(/([mnɲ])β/g, '$1b');
-        result = result.replace(/d/g, 'ð');
-        result = result.replace(/([mnɲl̪])ð/g, '$1d');
-        result = result.replace(/g(?![mnɲ])/g, 'ɣ');
-        result = result.replace(/([mnɲ])ɣ/g, '$1g');
-        result = result.replace(/l(?!̪)/g, 'l̪');
-
-        if (hadStress) result = 'ˈ' + result;
-        return result;
-      });
+    if (!hasDialog && !hasQuestions) {
+      throw new Error('No audio URLs were returned for this day.');
     }
 
-    function transcribe() {
-      const input = document.getElementById('inputText').value;
-      if (!input.trim()) return;
-
-      const dialect = document.getElementById('dialectSelect').value;
-      const features = {
-        liquidSubCadiz: document.getElementById('liquidSubCadiz')?.checked,
-        nVelarization: document.getElementById('nVelarization')?.checked,
-        ceceo: document.getElementById('ceceo')?.checked,
-        finalRDeletionCadiz: document.getElementById('finalRDeletionCadiz')?.checked,
-        finalSDeletion: document.getElementById('finalSDeletion')?.checked,
-        liquidSub: document.getElementById('liquidSub')?.checked,
-        sDelete: document.getElementById('sDelete')?.checked,
-        assibilatedR: document.getElementById('assibilatedR')?.checked,
-        sheismo: document.getElementById('sheismo')?.checked,
-        sAspiration: document.getElementById('sAspiration')?.checked,
-        finalRDeletion: document.getElementById('finalRDeletion')?.checked,
-        showSyllables: document.getElementById('showSyllables')?.checked
-      };
-
-      const words = input
-        .toLowerCase()
-        .replace(/[.,;:!?¡¿()«»"""''\[\]{}]/g, ' ')
-        .split(/\s+/)
-        .filter(w => w.trim());
-
-      const results = [];
-
-      words.forEach(word => {
-        let phonemes = orthographyToPhonemes(word, dialect);
-        let syllables = syllabify(phonemes, word);
-        syllables = applyStress(syllables, word);
-
-        if (dialect === 'dominican') {
-          if (syllables[0] && (/^ˈ?[ɾrR]/.test(syllables[0]))) {
-            if (syllables[0].startsWith('ˈɾ') || syllables[0].startsWith('ˈr') || syllables[0].startsWith('ˈR')) {
-              syllables[0] = 'ˈɣ' + syllables[0].slice(2);
-            } else if (syllables[0].startsWith('ɾ') || syllables[0].startsWith('r') || syllables[0].startsWith('R')) {
-              syllables[0] = 'ɣ' + syllables[0].slice(1);
-            }
-          }
-        }
-
-        syllables = applyRules(syllables, dialect, features);
-        results.push(features.showSyllables ? syllables.join('.') : syllables.join(''));
-      });
-
-      document.getElementById('transcriptionResult').textContent = `[${results.join(' ')}]`;
-      document.getElementById('outputSection').style.display = 'block';
+    if (!hasDialog || !hasQuestions) {
+      const missing = [!hasDialog ? 'dialog audio' : '', !hasQuestions ? 'questions audio' : ''].filter(Boolean).join(' and ');
+      showError('loadInfo', `Loaded with warning: missing ${missing}. You can still continue recording.`);
     }
-  </script>
+
+    S.dayLoaded = true;
+    show('step4');
+    show('step5');
+    show('step6');
+  } catch (err) {
+    const msg = err.name === 'AbortError'
+      ? 'Loading timed out. Please check your connection and try again.'
+      : `Error loading activity: ${err.message}`;
+    showError('loadError', msg);
+  } finally {
+    clearTimeout(timeoutId);
+    loadBtn.disabled = false;
+    loadBtn.textContent = '▶ Load Today\'s Activity';
+  }
+}
+
+function getSupportedMimeType() {
+  const options = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+  return options.find(type => MediaRecorder.isTypeSupported(type)) || '';
+}
+
+function setQuestionButtonStates(index, isRecording) {
+  document.getElementById(`recBtn${index}`).disabled = isRecording;
+  document.getElementById(`stopBtn${index}`).disabled = !isRecording;
+  document.getElementById(`recBtn${index}`).classList.toggle('recording', isRecording);
+}
+
+function resetOtherRecordButtons(disabled) {
+  for (let i = 1; i <= 4; i++) {
+    const recBtn = document.getElementById(`recBtn${i}`);
+    const stopBtn = document.getElementById(`stopBtn${i}`);
+    if (!recBtn || !stopBtn) continue;
+    if (!stopBtn.disabled) continue;
+    recBtn.disabled = disabled;
+  }
+
+  if (S.activeRecording !== 'free') {
+    document.getElementById('freeRecBtn').disabled = disabled;
+  }
+}
+
+function ensureCanRecord() {
+  if (!S.dayLoaded) {
+    alert('Please load today\'s activity first.');
+    return false;
+  }
+  if (!S.micGranted) {
+    alert('Please click "Enable Microphone" first.');
+    return false;
+  }
+  if (S.activeRecording) {
+    alert('Another recording is already in progress. Stop it first.');
+    return false;
+  }
+  return true;
+}
+
+async function startQuestionRecording(n) {
+  if (!ensureCanRecord()) return;
+
+  S.activeRecording = n;
+  S.chunks[n] = [];
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = getSupportedMimeType();
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+    S.recs[n] = { recorder, stream };
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) S.chunks[n].push(e.data);
+    };
+
+    recorder.onstop = async () => {
+      await finalizeRecording(n, `a${n}`, `qblock${n}`, `t${n}`);
+      setQuestionButtonStates(n, false);
+      resetOtherRecordButtons(false);
+      S.activeRecording = null;
+    };
+
+    recorder.start(250);
+    setQuestionButtonStates(n, true);
+    resetOtherRecordButtons(true);
+
+    const transcriptEl = document.getElementById(`t${n}`);
+    transcriptEl.classList.add('active');
+    transcriptEl.textContent = '🎙️ Recording... speak clearly, then press Stop.';
+  } catch (err) {
+    S.activeRecording = null;
+    alert('Could not start recording. Check microphone permission and try again.');
+  }
+}
+
+function stopQuestionRecording(n) {
+  const active = S.recs[n];
+  if (!active) return;
+  if (active.recorder.state !== 'inactive') {
+    active.recorder.stop();
+  }
+}
+
+async function finalizeRecording(key, audioId, blockId, transcriptId) {
+  const chunks = S.chunks[key] || [];
+  const { stream } = S.recs[key] || {};
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+
+  if (!chunks.length) {
+    document.getElementById(transcriptId).classList.remove('active');
+    document.getElementById(transcriptId).textContent = 'No audio captured. Please record again.';
+    return;
+  }
+
+  const blob = new Blob(chunks, { type: chunks[0].type || 'audio/webm' });
+  S.blobs[key] = blob;
+  S.b64[key] = await toB64(blob);
+
+  if (S.audioUrls[key]) {
+    URL.revokeObjectURL(S.audioUrls[key]);
+  }
+  S.audioUrls[key] = URL.createObjectURL(blob);
+
+  const audio = document.getElementById(audioId);
+  audio.src = S.audioUrls[key];
+  audio.classList.remove('hidden');
+
+  const transcriptEl = document.getElementById(transcriptId);
+  transcriptEl.classList.remove('active');
+  transcriptEl.textContent = '✅ Audio recorded. Transcription will be completed later.';
+  S.transcripts[key] = DEFAULT_TRANSCRIPT;
+
+  if (blockId) {
+    document.getElementById(blockId).classList.add('done');
+  }
+}
+
+async function startFreeSpeech() {
+  if (!ensureCanRecord()) return;
+
+  S.activeRecording = 'free';
+  S.chunks.free = [];
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = getSupportedMimeType();
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+    S.recs.free = { recorder, stream };
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) S.chunks.free.push(e.data);
+    };
+
+    recorder.onstop = async () => {
+      await finalizeRecording('free', 'aFree', null, 'tFree');
+      endFreeTimer();
+      S.activeRecording = null;
+      updateFreeButtons(false);
+      resetOtherRecordButtons(false);
+    };
+
+    recorder.start(250);
+    updateFreeButtons(true);
+    resetOtherRecordButtons(true);
+
+    const transcriptEl = document.getElementById('tFree');
+    transcriptEl.classList.add('active');
+    transcriptEl.textContent = '🎙️ Recording free speech... keep talking until the timer ends.';
+
+    startFreeTimer();
+  } catch (err) {
+    S.activeRecording = null;
+    updateFreeButtons(false);
+    alert('Could not start free speech recording. Please check microphone permission.');
+  }
+}
+
+function stopFreeSpeech() {
+  const active = S.recs.free;
+  if (!active) return;
+  if (active.recorder.state !== 'inactive') {
+    active.recorder.stop();
+  }
+}
+
+function updateFreeButtons(isRecording) {
+  document.getElementById('freeRecBtn').disabled = isRecording;
+  document.getElementById('freeRecBtn').classList.toggle('recording', isRecording);
+  document.getElementById('freeStopBtn').disabled = !isRecording;
+  document.getElementById('freeResetBtn').disabled = isRecording;
+}
+
+function startFreeTimer() {
+  S.freeSecondsLeft = 240;
+  S.freeEndTs = Date.now() + (S.freeSecondsLeft * 1000);
+  updateTimerDisplay(S.freeSecondsLeft);
+
+  if (S.freeTickInterval) clearInterval(S.freeTickInterval);
+
+  S.freeTickInterval = setInterval(() => {
+    const remainingMs = Math.max(0, S.freeEndTs - Date.now());
+    const seconds = Math.ceil(remainingMs / 1000);
+    S.freeSecondsLeft = seconds;
+    updateTimerDisplay(seconds);
+
+    if (remainingMs <= 0) {
+      stopFreeSpeech();
+    }
+  }, 250);
+}
+
+function endFreeTimer() {
+  if (S.freeTickInterval) {
+    clearInterval(S.freeTickInterval);
+    S.freeTickInterval = null;
+  }
+}
+
+function resetFreeSpeech() {
+  if (S.activeRecording === 'free') {
+    alert('Stop the current free speech recording before resetting.');
+    return;
+  }
+
+  endFreeTimer();
+  S.freeSecondsLeft = 240;
+  updateTimerDisplay(S.freeSecondsLeft);
+
+  S.chunks.free = [];
+  S.b64.free = '';
+  S.blobs.free = null;
+  S.transcripts.free = DEFAULT_TRANSCRIPT;
+
+  if (S.audioUrls.free) {
+    URL.revokeObjectURL(S.audioUrls.free);
+    S.audioUrls.free = null;
+  }
+
+  const audioEl = document.getElementById('aFree');
+  audioEl.src = '';
+  audioEl.classList.add('hidden');
+
+  const transcriptEl = document.getElementById('tFree');
+  transcriptEl.classList.remove('active');
+  transcriptEl.textContent = 'Transcript not captured live. Audio will be reviewed later.';
+
+  updateFreeButtons(false);
+}
+
+function updateTimerDisplay(secondsLeft) {
+  const timerEl = document.getElementById('freeTimer');
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+  if (secondsLeft <= 30) {
+    timerEl.classList.add('urgent');
+  } else {
+    timerEl.classList.remove('urgent');
+  }
+}
+
+function toB64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result || '');
+    reader.onerror = () => reject(new Error('Failed to read audio blob'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function missingRecordings() {
+  const missing = [];
+  for (let i = 1; i <= 4; i++) {
+    if (!S.b64[i]) missing.push(`Q${i}`);
+  }
+  if (!S.b64.free) missing.push('Free Speech');
+  return missing;
+}
+
+async function submitAll() {
+  if (S.submitInFlight || S.submitted) return;
+
+  const name = document.getElementById('studentName').value.trim();
+  const day = document.getElementById('dayNum').value;
+
+  if (!name || !day) {
+    alert('Please enter your name and select day before submitting.');
+    return;
+  }
+
+  const missing = missingRecordings();
+  if (missing.length) {
+    alert(`Please record all required parts before submitting. Missing: ${missing.join(', ')}`);
+    return;
+  }
+
+  S.submitInFlight = true;
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+
+  setHtml('submitStatus', '<div class="info-msg">⏳ Saving... please wait.</div>');
+
+  const payload = {
+    studentName: name,
+    day,
+    q1Audio: S.b64[1] || '',
+    q2Audio: S.b64[2] || '',
+    q3Audio: S.b64[3] || '',
+    q4Audio: S.b64[4] || '',
+    freeAudio: S.b64.free || '',
+    q1Transcript: S.transcripts[1] || '',
+    q2Transcript: S.transcripts[2] || '',
+    q3Transcript: S.transcripts[3] || '',
+    q4Transcript: S.transcripts[4] || '',
+    freeTranscript: S.transcripts.free || ''
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+
+    S.submitted = true;
+    setHtml('submitStatus', '<div class="info-msg">Submitted. If your browser stays on this page, your upload request was sent successfully.</div>');
+    document.getElementById('successBanner').style.display = 'block';
+  } catch (err) {
+    submitBtn.disabled = false;
+    setHtml('submitStatus', `<div class="error-msg">Submission failed: ${err.message}</div>`);
+  } finally {
+    S.submitInFlight = false;
+  }
+}
+
+window.addEventListener('load', () => {
+  updateTimerDisplay(S.freeSecondsLeft);
+
+  const params = new URLSearchParams(window.location.search);
+  const studentParam = params.get('student');
+  const dayParam = params.get('day');
+
+  if (studentParam) document.getElementById('studentName').value = studentParam;
+  if (dayParam) document.getElementById('dayNum').value = dayParam;
+});
+</script>
 </body>
 </html>
